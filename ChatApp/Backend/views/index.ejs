@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat App</title>
+  </head>
+  <body>
+    <h1>Chatting.... inside <%= groupname %></h1>
+    <input type="text" id="chat-box" name="" id="" />
+    <button id="send">Send</button>
+    <ul id="msg-list">
+        <% for (let i=0; i < previousmsgs.length; i++) {%>
+            <li> <%= previousmsgs[i].sender %> - <%= previousmsgs[i].content %> </li>
+        <% } %>
+    </ul>
+
+    <script
+      src="https://cdn.socket.io/4.7.2/socket.io.min.js"
+      integrity="sha384-mZLF4UVrpi/QTWPA7BjNPEnkIfRFn4ZEO3Qt/HFklTJBj/gBOV8G3HcKn4NfQblz"
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      var socket = io();
+      let input = document.getElementById("chat-box");
+      let msg_list = document.getElementById("msg-list");
+      let send = document.getElementById("send");
+
+      socket.emit("join_room", {
+        roomid: "<%= roomid %>",
+      });
+      send.addEventListener("click", () => {
+        let msg = input.value;
+        socket.emit("new_msg", {
+          message: msg,
+          roomid: "<%= roomid %>",
+          sender:'<%= user %>'
+        });
+        input.value = "";
+      });
+
+      socket.on("msg_rcvd", (data) => {
+        let msg = document.createElement("li");
+        msg.textContent = data.sender + " - "+ data.message;
+        msg_list.appendChild(msg);
+      });
+    </script>
+  </body>
+</html>
